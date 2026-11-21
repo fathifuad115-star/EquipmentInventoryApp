@@ -1,9 +1,15 @@
 package org.example.data.datasource
 
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.example.domain.model.Equipment
 import java.io.File
+import java.io.IOException
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption.ATOMIC_MOVE
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
 class EquipmentJsonDataSource(
     private val file: File = File("data/equipment.json")
@@ -18,11 +24,41 @@ class EquipmentJsonDataSource(
             return emptyList()
         }
 
-        return json.decodeFromString(file.readText())
+        return try {
+            json.decodeFromString<List<EquipmentJsonRecord>>(file.readText())
+                .map(EquipmentJsonRecord::toDomain)
+        } catch (exception: Exception) {
+            if (exception !is SerializationException && exception !is java.io.IOException) {
+                throw exception
+            }
+            throw IllegalStateException(
+                "Could not read equipment data from ${file.absolutePath}. Check that the JSON file is valid.",
+                exception
+            )
+        }
     }
 
     fun save(equipment: List<Equipment>) {
-        file.parentFile?.mkdirs()
-        file.writeText(json.encodeToString(equipment))
+        file.parentFile?.let { parent ->
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw IOException("Could not create data directory: ${parent.absolutePath}")
+            }
+        }
+
+        val records = equipment.map(EquipmentJsonRecord::fromDomain)
+        val temporaryFile = File.createTempFile("${file.name}.", ".tmp", file.absoluteFile.parentFile)
+
+        try {
+            temporaryFile.writeText(json.encodeToString(records))
+            try {
+                Files.move(temporaryFile.toPath(), file.toPath(), ATOMIC_MOVE, REPLACE_EXISTING)
+            } catch (exception: AtomicMoveNotSupportedException) {
+                Files.move(temporaryFile.toPath(), file.toPath(), REPLACE_EXISTING)
+            }
+        } finally {
+            temporaryFile.delete()
+        }
     }
+
+    fun exists(): Boolean = file.exists()
 }
