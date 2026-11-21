@@ -50,7 +50,7 @@ class EquipmentConsoleApp(
     }
 
     private fun searchForEquipment() {
-        val id = readRequired("Enter equipment ID: ")
+        val id = readRequired("Enter equipment ID: ") ?: return
         val equipment = searchEquipment(id)
 
         if (equipment == null) {
@@ -61,7 +61,7 @@ class EquipmentConsoleApp(
     }
 
     private fun addNewEquipment() {
-        val equipment = readEquipmentDetails()
+        val equipment = readEquipmentDetails() ?: return
 
         try {
             addEquipment(equipment)
@@ -72,7 +72,7 @@ class EquipmentConsoleApp(
     }
 
     private fun updateExistingEquipment() {
-        val id = readRequired("Enter equipment ID to update: ")
+        val id = readRequired("Enter equipment ID to update: ") ?: return
         val existingEquipment = searchEquipment(id)
 
         if (existingEquipment == null) {
@@ -80,11 +80,15 @@ class EquipmentConsoleApp(
             return
         }
 
+        val name = readRequired("Enter new name: ") ?: return
+        val location = readRequired("Enter new location: ") ?: return
+        val condition = readRequired("Enter new condition: ") ?: return
+
         val updatedEquipment = Equipment(
             id = existingEquipment.id,
-            name = readRequired("Enter new name: "),
-            location = readRequired("Enter new location: "),
-            condition = readRequired("Enter new condition: ")
+            name = name,
+            location = location,
+            condition = condition
         )
 
         if (updateEquipment(updatedEquipment)) {
@@ -95,7 +99,7 @@ class EquipmentConsoleApp(
     }
 
     private fun deleteExistingEquipment() {
-        val id = readRequired("Enter equipment ID to delete: ")
+        val id = readRequired("Enter equipment ID to delete: ") ?: return
         val equipment = searchEquipment(id)
 
         if (equipment == null) {
@@ -117,19 +121,24 @@ class EquipmentConsoleApp(
         }
     }
 
-    private fun readEquipmentDetails(): Equipment {
+    private fun readEquipmentDetails(): Equipment? {
+        val id = readRequired("Enter equipment ID: ") ?: return null
+        val name = readRequired("Enter equipment name: ") ?: return null
+        val location = readRequired("Enter equipment location: ") ?: return null
+        val condition = readRequired("Enter equipment condition: ") ?: return null
+
         return Equipment(
-            id = readRequired("Enter equipment ID: "),
-            name = readRequired("Enter equipment name: "),
-            location = readRequired("Enter equipment location: "),
-            condition = readRequired("Enter equipment condition: ")
+            id = id,
+            name = name,
+            location = location,
+            condition = condition
         )
     }
 
-    private fun readRequired(prompt: String): String {
+    private fun readRequired(prompt: String): String? {
         while (true) {
             print(prompt)
-            val value = readlnOrNull()?.trim()
+            val value = readlnOrNull()?.trim() ?: return null
 
             if (!value.isNullOrBlank()) {
                 return value
