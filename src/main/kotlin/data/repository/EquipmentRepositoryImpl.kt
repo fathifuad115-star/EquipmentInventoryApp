@@ -8,12 +8,13 @@ class EquipmentRepositoryImpl(
     private val dataSource: EquipmentJsonDataSource
 ) : EquipmentRepository {
 
-    private val items = dataSource.load().toMutableList()
+    private var items = dataSource.load()
 
     init {
-        if (items.isEmpty()) {
-            items.addAll(sampleEquipment())
-            saveItems()
+        if (!dataSource.exists()) {
+            val samples = sampleEquipment()
+            dataSource.save(samples)
+            items = samples
         }
     }
 
@@ -22,8 +23,9 @@ class EquipmentRepositoryImpl(
             "Equipment with ID ${equipment.id} already exists."
         }
 
-        items.add(equipment)
-        saveItems()
+        val updatedItems = items + equipment
+        dataSource.save(updatedItems)
+        items = updatedItems
     }
 
     override fun findById(id: String): Equipment? {
@@ -37,27 +39,26 @@ class EquipmentRepositoryImpl(
             return false
         }
 
-        items[index] = equipment
-        saveItems()
+        val updatedItems = items.toMutableList().apply { this[index] = equipment }
+        dataSource.save(updatedItems)
+        items = updatedItems
         return true
     }
 
     override fun deleteById(id: String): Boolean {
-        val removed = items.removeIf { it.id == id }
+        val updatedItems = items.filterNot { it.id == id }
 
-        if (removed) {
-            saveItems()
+        if (updatedItems.size == items.size) {
+            return false
         }
 
-        return removed
+        dataSource.save(updatedItems)
+        items = updatedItems
+        return true
     }
 
     override fun getAll(): List<Equipment> {
         return items.toList()
-    }
-
-    private fun saveItems() {
-        dataSource.save(items)
     }
 
     private fun sampleEquipment(): List<Equipment> {
