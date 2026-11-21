@@ -1,8 +1,5 @@
 package org.example.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class Equipment(
     val id: String,
     val name: String,
@@ -11,9 +8,9 @@ data class Equipment(
 ) {
     init {
 
-        require(id.isNotBlank())
-        require(name.isNotBlank())
-        require(location.isNotBlank())
-        require(condition.isNotBlank())
+        require(id.isNotBlank()) { "Equipment ID cannot be blank." }
+        require(name.isNotBlank()) { "Equipment name cannot be blank." }
+        require(location.isNotBlank()) { "Equipment location cannot be blank." }
+        require(condition.isNotBlank()) { "Equipment condition cannot be blank." }
     }
 }
