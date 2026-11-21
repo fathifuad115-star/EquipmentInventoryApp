@@ -1,6 +1,5 @@
 package org.example.data.datasource
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.example.domain.model.Equipment
@@ -28,7 +27,7 @@ class EquipmentJsonDataSource(
             json.decodeFromString<List<EquipmentJsonRecord>>(file.readText())
                 .map(EquipmentJsonRecord::toDomain)
         } catch (exception: Exception) {
-            if (exception !is SerializationException && exception !is java.io.IOException) {
+            if (exception !is SerializationException && exception !is IOException) {
                 throw exception
             }
             throw IllegalStateException(
@@ -52,8 +51,13 @@ class EquipmentJsonDataSource(
             temporaryFile.writeText(json.encodeToString(records))
             try {
                 Files.move(temporaryFile.toPath(), file.toPath(), ATOMIC_MOVE, REPLACE_EXISTING)
-            } catch (exception: AtomicMoveNotSupportedException) {
-                Files.move(temporaryFile.toPath(), file.toPath(), REPLACE_EXISTING)
+            } catch (atomicMoveException: AtomicMoveNotSupportedException) {
+                try {
+                    Files.move(temporaryFile.toPath(), file.toPath(), REPLACE_EXISTING)
+                } catch (fallbackException: IOException) {
+                    fallbackException.addSuppressed(atomicMoveException)
+                    throw fallbackException
+                }
             }
         } finally {
             temporaryFile.delete()

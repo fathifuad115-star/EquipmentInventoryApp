@@ -140,7 +140,7 @@ class EquipmentConsoleApp(
             print(prompt)
             val value = readlnOrNull()?.trim() ?: return null
 
-            if (!value.isNullOrBlank()) {
+            if (value.isNotBlank()) {
                 return value
             }
 
