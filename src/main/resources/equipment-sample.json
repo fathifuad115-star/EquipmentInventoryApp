@@ -1,0 +1,62 @@
+[
+  {
+    "id": "EQ-001",
+    "name": "Desktop Computer",
+    "location": "Lab A",
+    "condition": "Good"
+  },
+  {
+    "id": "EQ-002",
+    "name": "Monitor",
+    "location": "Lab A",
+    "condition": "Good"
+  },
+  {
+    "id": "EQ-003",
+    "name": "Keyboard",
+    "location": "Lab A",
+    "condition": "Fair"
+  },
+  {
+    "id": "EQ-004",
+    "name": "Mouse",
+    "location": "Lab A",
+    "condition": "Good"
+  },
+  {
+    "id": "EQ-005",
+    "name": "Printer",
+    "location": "Lab B",
+    "condition": "Needs Repair"
+  },
+  {
+    "id": "EQ-006",
+    "name": "Projector",
+    "location": "Lab B",
+    "condition": "Good"
+  },
+  {
+    "id": "EQ-007",
+    "name": "Router",
+    "location": "Server Room",
+    "condition": "Good"
+  },
+  {
+    "id": "EQ-008",
+    "name": "Network Switch",
+    "location": "Server Room",
+    "condition": "Fair"
+  },
+  {
+    "id": "EQ-009",
+    "name": "Laptop",
+    "location": "Lab C",
+    "condition": "Good"
+  },
+  {
+    "id": "EQ-010",
+    "name": "UPS",
+    "location": "Server Room",
+    "condition": "Needs Repair"
+  }
+]
