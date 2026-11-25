@@ -37,6 +37,15 @@ class EquipmentJsonDataSource(
         }
     }
 
+    fun loadInitialData(): List<Equipment> {
+        val resource = javaClass.getResourceAsStream("/equipment-sample.json")
+            ?: throw IllegalStateException("Could not find equipment-sample.json resource.")
+
+        return resource.bufferedReader().use { reader ->
+            json.decodeFromString<List<EquipmentJsonRecord>>(reader.readText())
+                .map(EquipmentJsonRecord::toDomain)
+        }
+    }
     fun save(equipment: List<Equipment>) {
         file.parentFile?.let { parent ->
             if (!parent.exists() && !parent.mkdirs()) {
