@@ -7,10 +7,6 @@ class AddEquipmentUseCase(
     private val repository: EquipmentRepository
 ) {
     operator fun invoke(equipment: Equipment) {
-        require(repository.findById(equipment.id) == null) {
-            "Equipment with ID ${equipment.id} already exists."
-        }
-
         repository.add(equipment)
     }
 }
