@@ -7,6 +7,9 @@ class FakeEquipmentRepository : EquipmentRepository {
     private val items = mutableListOf<Equipment>()
 
     override fun add(equipment: Equipment) {
+        require(items.none { it.id == equipment.id }) {
+            "Equipment with ID ${equipment.id} already exists."
+        }
         items.add(equipment)
     }
 
