@@ -58,5 +58,11 @@
         "name": "UPS",
         "location": "Server Room",
         "condition": "Needs Repair"
+    },
+    {
+        "id": "EQ-015",
+        "name": "RAM",
+        "location": "Lab A",
+        "condition": "Good"
     }
 ]

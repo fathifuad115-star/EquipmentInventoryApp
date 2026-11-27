@@ -23,29 +23,26 @@ class EquipmentJsonDataSource(
             return emptyList()
         }
 
-        return try {
-            json.decodeFromString<List<EquipmentJsonRecord>>(file.readText())
-                .map(EquipmentJsonRecord::toDomain)
-        } catch (exception: Exception) {
-            if (exception !is SerializationException && exception !is IOException) {
-                throw exception
-            }
+        val content = try {
+            file.readText()
+        } catch (exception: IOException) {
             throw IllegalStateException(
-                "Could not read equipment data from ${file.absolutePath}. Check that the JSON file is valid.",
+                "Could not read equipment data from ${file.absolutePath}.",
                 exception
             )
         }
+
+        return decodeEquipment(content, file.absolutePath)
     }
 
     fun loadInitialData(): List<Equipment> {
         val resource = javaClass.getResourceAsStream("/equipment-sample.json")
             ?: throw IllegalStateException("Could not find equipment-sample.json resource.")
 
-        return resource.bufferedReader().use { reader ->
-            json.decodeFromString<List<EquipmentJsonRecord>>(reader.readText())
-                .map(EquipmentJsonRecord::toDomain)
-        }
+        val content = resource.bufferedReader().use { reader -> reader.readText() }
+        return decodeEquipment(content, "equipment-sample.json resource")
     }
+
     fun save(equipment: List<Equipment>) {
         file.parentFile?.let { parent ->
             if (!parent.exists() && !parent.mkdirs()) {
@@ -54,7 +51,11 @@ class EquipmentJsonDataSource(
         }
 
         val records = equipment.map(EquipmentJsonRecord::fromDomain)
-        val temporaryFile = File.createTempFile("${file.name}.", ".tmp", file.absoluteFile.parentFile)
+        val temporaryFile = File.createTempFile(
+            "${file.name}.",
+            ".tmp",
+            file.absoluteFile.parentFile
+        )
 
         try {
             temporaryFile.writeText(json.encodeToString(records))
@@ -74,4 +75,16 @@ class EquipmentJsonDataSource(
     }
 
     fun exists(): Boolean = file.exists()
+
+    private fun decodeEquipment(content: String, source: String): List<Equipment> {
+        return try {
+            json.decodeFromString<List<EquipmentJsonRecord>>(content)
+                .map(EquipmentJsonRecord::toDomain)
+        } catch (exception: SerializationException) {
+            throw IllegalStateException(
+                "Could not read equipment data from $source. Check that the JSON file is valid.",
+                exception
+            )
+        }
+    }
 }
